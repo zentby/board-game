@@ -20,7 +20,14 @@ export const GameBoardGomoku: React.FC<GameBoardGomokuProps> = ({
 }) => {
   return (
     <div className="p-4 bg-gradient-to-br from-yellow-800 to-pink-900 rounded-2xl shadow-2xl animate-scale-in">
-      <div className="grid grid-cols-15 gap-1 bg-yellow-700 p-1 rounded-lg">
+      <div
+        className="gap-1 bg-yellow-700 p-1 rounded-lg grid"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(15, minmax(0, 1fr))',
+          gridTemplateRows: 'repeat(15, minmax(0, 1fr))'
+        }}
+      >
         {board.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
             <div
