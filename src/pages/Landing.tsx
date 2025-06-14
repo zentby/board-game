@@ -9,13 +9,13 @@ const games = [
     title: "黑白棋（Othello）",
     description: "经典策略游戏，围捕对手棋子获得胜利",
     url: "/othello",
-    img: "https://lovable.dev/static/game-othello.png", // 可自定义
+    img: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=256&q=80",
   },
   {
     title: "五子棋（Gomoku）",
     description: "率先连成五子即可取胜的棋类对战",
     url: "/gomoku",
-    img: "https://lovable.dev/static/game-gomoku.png", // 可自定义
+    img: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=256&q=80",
   },
 ];
 

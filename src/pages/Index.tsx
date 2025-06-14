@@ -1,5 +1,7 @@
-
 import React, { useState, useCallback } from 'react';
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { GameBoard } from '@/components/GameBoard';
 import { GameControls } from '@/components/GameControls';
 import { ScoreBoard } from '@/components/ScoreBoard';
@@ -17,6 +19,8 @@ const Index = () => {
   const [gameMode, setGameMode] = useState<GameMode>('ai');
   const [gameStarted, setGameStarted] = useState(false);
   const [isAIThinking, setIsAIThinking] = useState(false);
+
+  const navigate = useNavigate();
 
   const resetGame = useCallback(() => {
     setBoard(initializeBoard());
@@ -113,6 +117,12 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       <div className="container mx-auto px-4 py-8">
+        <div className="mb-5 flex items-center">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
+            <ArrowLeft className="w-5 h-5 mr-1" />
+            返回
+          </Button>
+        </div>
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent animate-fade-in">
             黑白棋
