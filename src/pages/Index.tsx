@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Languages } from "lucide-react";
@@ -8,6 +9,7 @@ import { ScoreBoard } from '@/components/ScoreBoard';
 import { initializeBoard, isValidMove, makeMove, getValidMoves, isGameOver, getWinner } from '@/utils/gameLogic';
 import { makeAIMove } from '@/utils/aiLogic';
 import { toast } from 'sonner';
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const LANGS = {
   zh: {
@@ -61,7 +63,7 @@ const Index = () => {
   const [gameMode, setGameMode] = useState<GameMode>('ai');
   const [gameStarted, setGameStarted] = useState(false);
   const [isAIThinking, setIsAIThinking] = useState(false);
-  const [lang, setLang] = useState<SupportedLang>('zh');
+  const { lang, setLang } = useLanguage();
   const navigate = useNavigate();
 
   const texts = LANGS[lang];
@@ -236,3 +238,5 @@ const Index = () => {
 };
 
 export default Index;
+
+// 文件很长，可考虑后续重构成更小逻辑

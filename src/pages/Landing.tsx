@@ -1,11 +1,12 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import OthelloSVG from "@/components/svg/OthelloSVG";
 import GomokuSVG from "@/components/svg/GomokuSVG";
 import { Languages } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const LANGS = {
   zh: {
@@ -31,7 +32,7 @@ const LANGS = {
 type SupportedLang = keyof typeof LANGS;
 
 const Landing = () => {
-  const [lang, setLang] = useState<SupportedLang>("zh");
+  const { lang, setLang } = useLanguage();
   const navigate = useNavigate();
 
   const texts = LANGS[lang];

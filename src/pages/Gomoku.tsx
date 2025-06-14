@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Languages, Undo } from "lucide-react";
@@ -11,6 +10,7 @@ import { getStats, saveStats } from "@/utils/gameStats";
 import { toast } from "sonner";
 import { GOMOKU_LANGS } from "@/i18n/gomoku";
 import { useI18n } from "@/hooks/useI18n";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type SupportedLang = keyof typeof GOMOKU_LANGS;
 export type Player = "black" | "white";
@@ -29,7 +29,7 @@ const Gomoku = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [winner, setWinner] = useState<Player | "tie" | null>(null);
   const [stats, setStats] = useState<GameStats>(() => getStats("gomoku"));
-  const [lang, setLang] = useState<SupportedLang>("zh");
+  const { lang, setLang } = useLanguage();
   // 新增悔棋：增加步数记录
   const [history, setHistory] = useState<{ board: BoardState; player: Player }[]>([]);
   const [canUndo, setCanUndo] = useState(false);
