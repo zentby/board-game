@@ -3,19 +3,21 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import OthelloSVG from "@/components/svg/OthelloSVG";
+import GomokuSVG from "@/components/svg/GomokuSVG";
 
 const games = [
   {
     title: "黑白棋（Othello）",
     description: "经典策略游戏，围捕对手棋子获得胜利",
     url: "/othello",
-    img: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=256&q=80",
+    icon: <OthelloSVG className="mx-auto mb-1"/>,
   },
   {
     title: "五子棋（Gomoku）",
     description: "率先连成五子即可取胜的棋类对战",
     url: "/gomoku",
-    img: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=256&q=80",
+    icon: <GomokuSVG className="mx-auto mb-1"/>,
   },
 ];
 
@@ -37,12 +39,10 @@ const Landing = () => {
                 <CardTitle className="text-center">{game.title}</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col items-center gap-3">
-                <img
-                  src={game.img}
-                  alt={game.title}
-                  className="w-28 h-28 mx-auto rounded-xl shadow"
-                  draggable={false}
-                />
+                {/* SVG icon */}
+                <div className="w-28 h-28 flex items-center justify-center rounded-xl shadow bg-white/20">
+                  {game.icon}
+                </div>
                 <div className="text-slate-400 text-sm text-center">{game.description}</div>
                 <Button className="mt-3 px-7 py-2" onClick={() => navigate(game.url)}>
                   进入
