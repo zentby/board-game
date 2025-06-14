@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Languages } from "lucide-react";
@@ -192,12 +191,27 @@ const Index = () => {
               gameStarted={gameStarted}
               onModeChange={switchGameMode}
               onResetGame={resetGame}
+              lang={lang}
+              texts={{
+                mode_ai: texts.mode_ai,
+                mode_human: texts.mode_human,
+                restart: lang === "zh" ? "重新开始" : "Restart",
+                start_game: lang === "zh" ? "开始游戏" : "Start Game",
+                black_first: lang === "zh" ? "• 黑棋先手" : "• Black goes first",
+                flip_desc: lang === "zh" ? "• 翻转对方棋子获得分数" : "• Flip the opponent's pieces to score",
+                win_desc: lang === "zh" ? "• 棋子多者获胜" : "• Most pieces wins",
+              }}
             />
             <ScoreBoard 
               board={board}
               currentPlayer={currentPlayer}
               gameStarted={gameStarted}
               isAIThinking={isAIThinking}
+              lang={lang}
+              texts={{
+                black: texts.black,
+                white: texts.white,
+              }}
             />
           </div>
 
@@ -222,4 +236,3 @@ const Index = () => {
 };
 
 export default Index;
-
