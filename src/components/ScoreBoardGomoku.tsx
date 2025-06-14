@@ -10,6 +10,8 @@ interface ScoreBoardProps {
   gameStarted: boolean;
   winner: Player | "tie" | null;
   stats: GameStats;
+  lang: "zh" | "en";
+  t: (k: string) => string;
 }
 
 export const ScoreBoardGomoku: React.FC<ScoreBoardProps> = ({
@@ -17,27 +19,29 @@ export const ScoreBoardGomoku: React.FC<ScoreBoardProps> = ({
   gameStarted,
   winner,
   stats,
+  lang,
+  t
 }) => (
   <Card className="w-full max-w-sm bg-yellow-900 border-yellow-700 animate-fade-in">
     <CardHeader className="pb-4">
-      <CardTitle className="text-white text-center">比分/历史</CardTitle>
+      <CardTitle className="text-white text-center">{lang === "zh" ? "比分/历史" : "Score/Stats"}</CardTitle>
     </CardHeader>
     <CardContent className="space-y-4">
       <div className="flex items-center justify-between p-3 rounded-lg transition-all duration-300 bg-yellow-800">
-        <span className="text-white font-medium">对局</span>
+        <span className="text-white font-medium">{t("played")}</span>
         <span className="text-2xl font-bold text-white">{stats.played}</span>
       </div>
       <div className="grid grid-cols-3 gap-2">
         <div className="flex flex-col items-center bg-yellow-800 p-2 rounded">
-          <span className="text-yellow-100 text-xs">胜</span>
+          <span className="text-yellow-100 text-xs">{t("wins")}</span>
           <span className="text-lg font-bold text-green-300">{stats.wins}</span>
         </div>
         <div className="flex flex-col items-center bg-yellow-800 p-2 rounded">
-          <span className="text-yellow-100 text-xs">负</span>
+          <span className="text-yellow-100 text-xs">{t("losses")}</span>
           <span className="text-lg font-bold text-red-300">{stats.losses}</span>
         </div>
         <div className="flex flex-col items-center bg-yellow-800 p-2 rounded">
-          <span className="text-yellow-100 text-xs">平</span>
+          <span className="text-yellow-100 text-xs">{t("draws")}</span>
           <span className="text-lg font-bold text-yellow-300">{stats.draws}</span>
         </div>
       </div>
@@ -53,7 +57,8 @@ export const ScoreBoardGomoku: React.FC<ScoreBoardProps> = ({
               )}
             />
             <span className="text-sm text-yellow-100">
-              {currentPlayer === "black" ? "黑棋" : "白棋"}回合
+              {currentPlayer === "black" ? t("player_black") : t("player_white")}
+              {lang === "zh" ? "回合" : "'s turn"}
             </span>
           </div>
         </div>
@@ -61,13 +66,13 @@ export const ScoreBoardGomoku: React.FC<ScoreBoardProps> = ({
         <div className="text-center p-3 bg-yellow-800 rounded-lg">
           <span className="text-sm text-yellow-300">
             {winner === "tie"
-              ? "平局！"
-              : `${winner === "black" ? "黑棋" : "白棋"}获胜！`}
+              ? t("tie")
+              : `${winner === "black" ? t("player_black") : t("player_white")}${lang === "zh" ? "获胜！" : " wins!"}`}
           </span>
         </div>
       ) : (
         <div className="text-center p-3 bg-yellow-800 rounded-lg">
-          <span className="text-sm text-yellow-200">点击开始游戏</span>
+          <span className="text-sm text-yellow-200">{lang === "zh" ? "点击开始游戏" : "Click to start the game"}</span>
         </div>
       )}
     </CardContent>

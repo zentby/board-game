@@ -1,7 +1,7 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Languages } from "lucide-react";
+import { ArrowLeft, Languages, Undo } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GameBoardGomoku } from "@/components/GameBoardGomoku";
 import { GameControlsGomoku } from "@/components/GameControlsGomoku";
@@ -9,49 +9,10 @@ import { ScoreBoardGomoku } from "@/components/ScoreBoardGomoku";
 import { initializeBoard, isValidMove, makeMove, isGameOver, getWinner } from "@/utils/gomokuLogic";
 import { getStats, saveStats } from "@/utils/gameStats";
 import { toast } from "sonner";
+import { GOMOKU_LANGS } from "@/i18n/gomoku";
+import { useI18n } from "@/hooks/useI18n";
 
-const LANGS = {
-  zh: {
-    return: "返回",
-    title: "五子棋",
-    subtitle: "谁能先连成五子？快来挑战吧！",
-    game_rule: "黑棋先行 • 横、竖、斜连续五子获胜 • 棋盘下方可重新开始",
-    invalid_move: "无效落子！",
-    new_game: "新五子棋游戏开始！",
-    black_win: "黑棋获胜！",
-    white_win: "白棋获胜！",
-    tie: "平局！",
-    switch_to_english: "Switch to English",
-    switch_to_chinese: "切换到中文",
-    played: "总局数",
-    wins: "胜",
-    losses: "负",
-    draws: "和",
-    player_black: "黑棋",
-    player_white: "白棋",
-  },
-  en: {
-    return: "Return",
-    title: "Gomoku",
-    subtitle: "Who can be first to align five? Come and challenge yourself!",
-    game_rule: "Black moves first • 5 in a row (horizontally, vertically or diagonally) wins • Start new game below",
-    invalid_move: "Invalid move!",
-    new_game: "New Gomoku game started!",
-    black_win: "Black wins!",
-    white_win: "White wins!",
-    tie: "Draw!",
-    switch_to_english: "Switch to English",
-    switch_to_chinese: "切换到中文",
-    played: "Played",
-    wins: "Wins",
-    losses: "Losses",
-    draws: "Draws",
-    player_black: "Black",
-    player_white: "White",
-  }
-};
-type SupportedLang = keyof typeof LANGS;
-
+type SupportedLang = keyof typeof GOMOKU_LANGS;
 export type Player = "black" | "white";
 export type BoardState = (Player | null)[][];
 
@@ -69,9 +30,12 @@ const Gomoku = () => {
   const [winner, setWinner] = useState<Player | "tie" | null>(null);
   const [stats, setStats] = useState<GameStats>(() => getStats("gomoku"));
   const [lang, setLang] = useState<SupportedLang>("zh");
-  const navigate = useNavigate();
+  // 新增悔棋：增加步数记录
+  const [history, setHistory] = useState<{ board: BoardState; player: Player }[]>([]);
+  const [canUndo, setCanUndo] = useState(false);
 
-  const texts = LANGS[lang];
+  const navigate = useNavigate();
+  const { t } = useI18n(GOMOKU_LANGS, lang);
 
   useEffect(() => {
     setStats(getStats("gomoku"));
@@ -83,16 +47,22 @@ const Gomoku = () => {
     setCurrentPlayer("black");
     setWinner(null);
     setGameStarted(true);
-    toast.success(texts.new_game);
-  }, [texts.new_game]);
+    setHistory([]);
+    setCanUndo(false);
+    toast.success(t("new_game"));
+  }, [t]);
 
   const handleCellClick = useCallback(
     (row: number, col: number) => {
       if (!gameStarted || winner) return;
       if (!isValidMove(board, row, col)) {
-        toast.error(texts.invalid_move);
+        toast.error(t("invalid_move"));
         return;
       }
+      // 每次落子先保存历史用于悔棋
+      setHistory((prev) => [...prev, { board: board.map(r => [...r]), player: currentPlayer }]);
+      setCanUndo(true);
+
       const newBoard = makeMove(board, row, col, currentPlayer);
       setBoard(newBoard);
 
@@ -103,23 +73,40 @@ const Gomoku = () => {
 
         let newStats = { ...stats, played: stats.played + 1 };
         if (winRes === "tie") {
-          toast.info(texts.tie);
+          toast.info(t("tie"));
           newStats.draws++;
         } else if (winRes === "black") {
-          toast.success(texts.black_win);
+          toast.success(t("black_win"));
           newStats.wins++;
         } else if (winRes === "white") {
-          toast.success(texts.white_win);
+          toast.success(t("white_win"));
           newStats.losses++;
         }
         saveStats("gomoku", newStats);
         setStats(newStats);
+        setCanUndo(false); // 游戏结束不能悔棋
         return;
       }
       setCurrentPlayer(currentPlayer === "black" ? "white" : "black");
     },
-    [board, currentPlayer, gameStarted, stats, winner, texts]
+    [board, currentPlayer, gameStarted, stats, winner, t]
   );
+
+  // 悔棋功能，只允许悔一次（可拓展多次）
+  const handleUndo = useCallback(() => {
+    if (!canUndo || !history.length) {
+      toast.error(t("no_undo"));
+      return;
+    }
+    const last = history[history.length - 1];
+    setBoard(last.board);
+    setCurrentPlayer(last.player);
+    setHistory([]);
+    setWinner(null);
+    setGameStarted(true);
+    setCanUndo(false); // 只允许悔一次
+    toast.success(t("undo_success"));
+  }, [canUndo, history, t]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-white relative">
@@ -128,13 +115,13 @@ const Gomoku = () => {
         <Button
           variant="ghost"
           size="icon"
-          aria-label={lang === "zh" ? texts.switch_to_english : texts.switch_to_chinese}
+          aria-label={lang === "zh" ? t("switch_to_english") : t("switch_to_chinese")}
           onClick={() => setLang(lang === "zh" ? "en" : "zh")}
           className="rounded-full"
         >
           <Languages className="w-5 h-5" />
           <span className="sr-only">
-            {lang === "zh" ? texts.switch_to_english : texts.switch_to_chinese}
+            {lang === "zh" ? t("switch_to_english") : t("switch_to_chinese")}
           </span>
         </Button>
       </div>
@@ -142,18 +129,22 @@ const Gomoku = () => {
         <div className="mb-5 flex items-center">
           <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
             <ArrowLeft className="w-5 h-5 mr-1" />
-            {texts.return}
+            {t("return")}
           </Button>
         </div>
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-pink-500 bg-clip-text text-transparent animate-fade-in">{texts.title}</h1>
-          <p className="text-lg text-slate-300 animate-fade-in">{texts.subtitle}</p>
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-pink-500 bg-clip-text text-transparent animate-fade-in">{t("title")}</h1>
+          <p className="text-lg text-slate-300 animate-fade-in">{t("subtitle")}</p>
         </div>
         <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
           <div className="flex flex-col gap-6">
             <GameControlsGomoku 
               gameStarted={gameStarted}
               onResetGame={resetGame}
+              onUndo={handleUndo}
+              canUndo={canUndo}
+              lang={lang}
+              t={t}
             />
             <ScoreBoardGomoku 
               board={board}
@@ -161,6 +152,8 @@ const Gomoku = () => {
               gameStarted={gameStarted}
               winner={winner}
               stats={stats}
+              lang={lang}
+              t={t}
             />
           </div>
           <div className="flex-1 flex justify-center">
@@ -174,14 +167,10 @@ const Gomoku = () => {
           </div>
         </div>
         <div className="text-center mt-8 text-slate-400">
-          <p className="text-sm">
-            {texts.game_rule}
-          </p>
+          <p className="text-sm">{t("game_rule")}</p>
         </div>
       </div>
     </div>
   );
 };
-
 export default Gomoku;
-
