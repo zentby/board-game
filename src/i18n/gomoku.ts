@@ -25,7 +25,16 @@ export const GOMOKU_LANGS = {
     undo: "悔棋",
     undo_disabled: "不能再悔棋了",
     undo_success: "悔棋成功！",
-    no_undo: "没有可悔的步骤！"
+    no_undo: "没有可悔的步骤！",
+    ai_mode: "AI模式",
+    pvp_mode: "双人模式",
+    ai_mode_desc: "• 你执黑棋，AI执白棋",
+    ai_thinking: "AI思考中...",
+    your_turn: "你的回合",
+    ai_turn: "AI回合",
+    you_win: "你获胜了！",
+    ai_wins: "AI获胜了！",
+    ai_win: "AI获胜了！"
   },
   en: {
     return: "Return",
@@ -52,6 +61,15 @@ export const GOMOKU_LANGS = {
     undo: "Undo",
     undo_disabled: "Can't undo anymore",
     undo_success: "Move undone!",
-    no_undo: "No move to undo!"
+    no_undo: "No move to undo!",
+    ai_mode: "AI Mode",
+    pvp_mode: "PvP Mode",
+    ai_mode_desc: "• You play black, AI plays white",
+    ai_thinking: "AI thinking...",
+    your_turn: "Your turn",
+    ai_turn: "AI's turn",
+    you_win: "You win!",
+    ai_wins: "AI wins!",
+    ai_win: "AI wins!"
   }
 };

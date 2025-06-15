@@ -3,6 +3,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BoardState, Player, GameStats } from "@/pages/Gomoku";
 import { cn } from "@/lib/utils";
+import { Bot, User } from "lucide-react";
 
 interface ScoreBoardProps {
   board: BoardState;
@@ -10,6 +11,8 @@ interface ScoreBoardProps {
   gameStarted: boolean;
   winner: Player | "tie" | null;
   stats: GameStats;
+  isAIMode: boolean;
+  isAIThinking: boolean;
   lang: "zh" | "en";
   t: (k: string) => string;
 }
@@ -19,6 +22,8 @@ export const ScoreBoardGomoku: React.FC<ScoreBoardProps> = ({
   gameStarted,
   winner,
   stats,
+  isAIMode,
+  isAIThinking,
   lang,
   t
 }) => (
@@ -56,9 +61,17 @@ export const ScoreBoardGomoku: React.FC<ScoreBoardProps> = ({
                   : "bg-gradient-to-br from-white to-gray-200"
               )}
             />
+            {isAIMode && currentPlayer === "white" ? (
+              <Bot className="w-4 h-4 text-purple-400" />
+            ) : isAIMode && currentPlayer === "black" ? (
+              <User className="w-4 h-4 text-blue-400" />
+            ) : null}
             <span className="text-sm text-yellow-100">
-              {currentPlayer === "black" ? t("player_black") : t("player_white")}
-              {lang === "zh" ? "回合" : "'s turn"}
+              {isAIThinking ? t("ai_thinking") : 
+                isAIMode ? 
+                  (currentPlayer === "black" ? t("your_turn") : t("ai_turn")) :
+                  `${currentPlayer === "black" ? t("player_black") : t("player_white")}${lang === "zh" ? "回合" : "'s turn"}`
+              }
             </span>
           </div>
         </div>
@@ -67,7 +80,9 @@ export const ScoreBoardGomoku: React.FC<ScoreBoardProps> = ({
           <span className="text-sm text-yellow-300">
             {winner === "tie"
               ? t("tie")
-              : `${winner === "black" ? t("player_black") : t("player_white")}${lang === "zh" ? "获胜！" : " wins!"}`}
+              : isAIMode
+                ? (winner === "black" ? t("you_win") : t("ai_wins"))
+                : `${winner === "black" ? t("player_black") : t("player_white")}${lang === "zh" ? "获胜！" : " wins!"}`}
           </span>
         </div>
       ) : (

@@ -2,13 +2,15 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RotateCcw, Undo } from "lucide-react";
+import { RotateCcw, Undo, Bot, User } from "lucide-react";
 
 interface GameControlsProps {
   gameStarted: boolean;
   onResetGame: () => void;
   onUndo: () => void;
   canUndo: boolean;
+  isAIMode: boolean;
+  onToggleAI: () => void;
   lang: "zh" | "en";
   t: (k: string) => string;
 }
@@ -18,6 +20,8 @@ export const GameControlsGomoku: React.FC<GameControlsProps> = ({
   onResetGame,
   onUndo,
   canUndo,
+  isAIMode,
+  onToggleAI,
   lang,
   t
 }) => (
@@ -26,6 +30,19 @@ export const GameControlsGomoku: React.FC<GameControlsProps> = ({
       <CardTitle className="text-white text-center">{lang === "zh" ? "游戏控制" : "Controls"}</CardTitle>
     </CardHeader>
     <CardContent className="space-y-4">
+      <div className="flex gap-2">
+        <Button
+          onClick={onToggleAI}
+          className={`flex-1 flex items-center gap-2 ${
+            isAIMode 
+              ? "bg-purple-500 hover:bg-purple-600" 
+              : "bg-blue-500 hover:bg-blue-600"
+          }`}
+        >
+          {isAIMode ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
+          {isAIMode ? t("ai_mode") : t("pvp_mode")}
+        </Button>
+      </div>
       <div className="flex gap-2">
         <Button
           onClick={onResetGame}
@@ -46,6 +63,7 @@ export const GameControlsGomoku: React.FC<GameControlsProps> = ({
       <div className="text-xs text-yellow-200 space-y-1">
         <p>{t("black_first")}</p>
         <p>{t("win_desc")}</p>
+        {isAIMode && <p>{t("ai_mode_desc")}</p>}
       </div>
     </CardContent>
   </Card>

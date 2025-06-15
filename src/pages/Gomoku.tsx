@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Languages, Undo } from "lucide-react";
@@ -6,6 +7,7 @@ import { GameBoardGomoku } from "@/components/GameBoardGomoku";
 import { GameControlsGomoku } from "@/components/GameControlsGomoku";
 import { ScoreBoardGomoku } from "@/components/ScoreBoardGomoku";
 import { initializeBoard, isValidMove, makeMove, isGameOver, getWinner } from "@/utils/gomokuLogic";
+import { makeGomokuAIMove } from "@/utils/gomokuAI";
 import { getStats, saveStats } from "@/utils/gameStats";
 import { toast } from "sonner";
 import { GOMOKU_LANGS } from "@/i18n/gomoku";
@@ -29,8 +31,10 @@ const Gomoku = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [winner, setWinner] = useState<Player | "tie" | null>(null);
   const [stats, setStats] = useState<GameStats>(() => getStats("gomoku"));
+  const [isAIMode, setIsAIMode] = useState(false);
+  const [isAIThinking, setIsAIThinking] = useState(false);
   const { lang, setLang } = useLanguage();
-  // 新增悔棋：增加步数记录
+  
   const [history, setHistory] = useState<{ board: BoardState; player: Player }[]>([]);
   const [canUndo, setCanUndo] = useState(false);
 
@@ -39,8 +43,26 @@ const Gomoku = () => {
 
   useEffect(() => {
     setStats(getStats("gomoku"));
-    // eslint-disable-next-line
   }, [winner]);
+
+  // AI自动下棋
+  useEffect(() => {
+    if (gameStarted && isAIMode && currentPlayer === "white" && !winner && !isAIThinking) {
+      setIsAIThinking(true);
+      
+      // 添加延迟让AI思考更自然
+      const timer = setTimeout(() => {
+        const aiMove = makeGomokuAIMove(board, "white");
+        if (aiMove) {
+          const [row, col] = aiMove;
+          handleMove(row, col, false); // false表示不记录历史（AI下棋不能悔棋）
+        }
+        setIsAIThinking(false);
+      }, 800);
+
+      return () => clearTimeout(timer);
+    }
+  }, [gameStarted, isAIMode, currentPlayer, winner, board, isAIThinking]);
 
   const resetGame = useCallback(() => {
     setBoard(initializeBoard());
@@ -49,52 +71,69 @@ const Gomoku = () => {
     setGameStarted(true);
     setHistory([]);
     setCanUndo(false);
+    setIsAIThinking(false);
     toast.success(t("new_game"));
   }, [t]);
 
+  const handleMove = useCallback((row: number, col: number, recordHistory: boolean = true) => {
+    if (!gameStarted || winner || !isValidMove(board, row, col)) {
+      return false;
+    }
+
+    // 记录历史用于悔棋（只记录玩家的棋步）
+    if (recordHistory && currentPlayer === "black") {
+      setHistory((prev) => [...prev, { board: board.map(r => [...r]), player: currentPlayer }]);
+      setCanUndo(true);
+    }
+
+    const newBoard = makeMove(board, row, col, currentPlayer);
+    setBoard(newBoard);
+
+    if (isGameOver(newBoard, row, col, currentPlayer)) {
+      const winRes = getWinner(newBoard, row, col, currentPlayer);
+      setWinner(winRes);
+      setGameStarted(false);
+
+      let newStats = { ...stats, played: stats.played + 1 };
+      if (winRes === "tie") {
+        toast.info(t("tie"));
+        newStats.draws++;
+      } else if (winRes === "black") {
+        toast.success(t("black_win"));
+        newStats.wins++;
+      } else if (winRes === "white") {
+        toast.success(isAIMode ? t("ai_win") : t("white_win"));
+        newStats.losses++;
+      }
+      saveStats("gomoku", newStats);
+      setStats(newStats);
+      setCanUndo(false);
+      return true;
+    }
+
+    setCurrentPlayer(currentPlayer === "black" ? "white" : "black");
+    return true;
+  }, [board, currentPlayer, gameStarted, stats, winner, t, isAIMode]);
+
   const handleCellClick = useCallback(
     (row: number, col: number) => {
-      if (!gameStarted || winner) return;
+      // AI模式下只允许玩家（黑棋）下棋
+      if (isAIMode && currentPlayer === "white") {
+        return;
+      }
+      
       if (!isValidMove(board, row, col)) {
         toast.error(t("invalid_move"));
         return;
       }
-      // 每次落子先保存历史用于悔棋
-      setHistory((prev) => [...prev, { board: board.map(r => [...r]), player: currentPlayer }]);
-      setCanUndo(true);
 
-      const newBoard = makeMove(board, row, col, currentPlayer);
-      setBoard(newBoard);
-
-      if (isGameOver(newBoard, row, col, currentPlayer)) {
-        const winRes = getWinner(newBoard, row, col, currentPlayer);
-        setWinner(winRes);
-        setGameStarted(false);
-
-        let newStats = { ...stats, played: stats.played + 1 };
-        if (winRes === "tie") {
-          toast.info(t("tie"));
-          newStats.draws++;
-        } else if (winRes === "black") {
-          toast.success(t("black_win"));
-          newStats.wins++;
-        } else if (winRes === "white") {
-          toast.success(t("white_win"));
-          newStats.losses++;
-        }
-        saveStats("gomoku", newStats);
-        setStats(newStats);
-        setCanUndo(false); // 游戏结束不能悔棋
-        return;
-      }
-      setCurrentPlayer(currentPlayer === "black" ? "white" : "black");
+      handleMove(row, col, true);
     },
-    [board, currentPlayer, gameStarted, stats, winner, t]
+    [board, currentPlayer, isAIMode, handleMove, t]
   );
 
-  // 悔棋功能，只允许悔一次（可拓展多次）
   const handleUndo = useCallback(() => {
-    if (!canUndo || !history.length) {
+    if (!canUndo || !history.length || isAIMode) {
       toast.error(t("no_undo"));
       return;
     }
@@ -104,9 +143,21 @@ const Gomoku = () => {
     setHistory([]);
     setWinner(null);
     setGameStarted(true);
-    setCanUndo(false); // 只允许悔一次
+    setCanUndo(false);
     toast.success(t("undo_success"));
-  }, [canUndo, history, t]);
+  }, [canUndo, history, isAIMode, t]);
+
+  const toggleAIMode = useCallback(() => {
+    setIsAIMode(!isAIMode);
+    // 切换模式时重置游戏
+    setBoard(initializeBoard());
+    setCurrentPlayer("black");
+    setWinner(null);
+    setGameStarted(false);
+    setHistory([]);
+    setCanUndo(false);
+    setIsAIThinking(false);
+  }, [isAIMode]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-white relative">
@@ -142,7 +193,9 @@ const Gomoku = () => {
               gameStarted={gameStarted}
               onResetGame={resetGame}
               onUndo={handleUndo}
-              canUndo={canUndo}
+              canUndo={canUndo && !isAIMode}
+              isAIMode={isAIMode}
+              onToggleAI={toggleAIMode}
               lang={lang}
               t={t}
             />
@@ -152,6 +205,8 @@ const Gomoku = () => {
               gameStarted={gameStarted}
               winner={winner}
               stats={stats}
+              isAIMode={isAIMode}
+              isAIThinking={isAIThinking}
               lang={lang}
               t={t}
             />
@@ -163,6 +218,8 @@ const Gomoku = () => {
               currentPlayer={currentPlayer}
               gameStarted={gameStarted}
               winner={winner}
+              isAIMode={isAIMode}
+              isAIThinking={isAIThinking}
             />
           </div>
         </div>
