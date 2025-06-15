@@ -45,14 +45,14 @@ const Gomoku = () => {
     setStats(getStats("gomoku"));
   }, [winner]);
 
-  // AI自动下棋
+  // AI自动下棋 - AI现在执黑棋先手
   useEffect(() => {
-    if (gameStarted && isAIMode && currentPlayer === "white" && !winner && !isAIThinking) {
+    if (gameStarted && isAIMode && currentPlayer === "black" && !winner && !isAIThinking) {
       setIsAIThinking(true);
       
       // 添加延迟让AI思考更自然
       const timer = setTimeout(() => {
-        const aiMove = makeGomokuAIMove(board, "white");
+        const aiMove = makeGomokuAIMove(board, "black");
         if (aiMove) {
           const [row, col] = aiMove;
           handleMove(row, col, false); // false表示不记录历史（AI下棋不能悔棋）
@@ -81,7 +81,7 @@ const Gomoku = () => {
     }
 
     // 记录历史用于悔棋（只记录玩家的棋步）
-    if (recordHistory && currentPlayer === "black") {
+    if (recordHistory && currentPlayer === "white") {
       setHistory((prev) => [...prev, { board: board.map(r => [...r]), player: currentPlayer }]);
       setCanUndo(true);
     }
@@ -99,11 +99,11 @@ const Gomoku = () => {
         toast.info(t("tie"));
         newStats.draws++;
       } else if (winRes === "black") {
-        toast.success(t("black_win"));
-        newStats.wins++;
-      } else if (winRes === "white") {
-        toast.success(isAIMode ? t("ai_win") : t("white_win"));
+        toast.success(isAIMode ? t("ai_win") : t("black_win"));
         newStats.losses++;
+      } else if (winRes === "white") {
+        toast.success(isAIMode ? t("you_win") : t("white_win"));
+        newStats.wins++;
       }
       saveStats("gomoku", newStats);
       setStats(newStats);
@@ -117,8 +117,8 @@ const Gomoku = () => {
 
   const handleCellClick = useCallback(
     (row: number, col: number) => {
-      // AI模式下只允许玩家（黑棋）下棋
-      if (isAIMode && currentPlayer === "white") {
+      // AI模式下只允许玩家（白棋）下棋
+      if (isAIMode && currentPlayer === "black") {
         return;
       }
       
