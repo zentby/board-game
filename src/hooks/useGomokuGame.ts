@@ -1,5 +1,4 @@
-
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { initializeBoard, isValidMove, makeMove, isGameOver, getWinner } from "@/utils/gomokuLogic";
 import { makeGomokuAIMove } from "@/utils/gomokuAI";
 import { getStats, saveStats } from "@/utils/gameStats";
@@ -17,58 +16,74 @@ export const useGomokuGame = (t: (key: string) => string) => {
   const [history, setHistory] = useState<{ board: BoardState; player: Player }[]>([]);
   const [canUndo, setCanUndo] = useState(false);
 
+  // Use ref to store current board state for AI access
+  const boardRef = useRef(board);
+  boardRef.current = board;
+
   useEffect(() => {
     setStats(getStats("gomoku"));
   }, [winner]);
 
   // AI自动下棋 - AI执白棋
   useEffect(() => {
-    if (gameStarted && isAIMode && currentPlayer === "white" && !winner && !isAIThinking) {
-      console.log("AI should make a move", { gameStarted, isAIMode, currentPlayer, winner, isAIThinking });
-      
+    console.log("AI useEffect triggered", { gameStarted, isAIMode, currentPlayer, winner });
+    
+    if (gameStarted && isAIMode && currentPlayer === "white" && !winner) {
+      console.log("AI should make a move - setting thinking state");
       setIsAIThinking(true);
       
       const timer = setTimeout(() => {
-        console.log("AI making move...");
-        const aiMove = makeGomokuAIMove(board, "white");
-        console.log("AI move result:", aiMove);
-        
-        if (aiMove) {
-          const [row, col] = aiMove;
-          // 直接在这里处理AI的移动，避免调用handleMove造成循环
-          if (isValidMove(board, row, col)) {
-            const newBoard = makeMove(board, row, col, "white");
-            setBoard(newBoard);
-            
-            if (isGameOver(newBoard, row, col, "white")) {
-              const winRes = getWinner(newBoard, row, col, "white");
-              setWinner(winRes);
-              setGameStarted(false);
+        try {
+          console.log("AI timer fired, making move...");
+          const currentBoard = boardRef.current;
+          const aiMove = makeGomokuAIMove(currentBoard, "white");
+          console.log("AI move result:", aiMove);
+          
+          if (aiMove) {
+            const [row, col] = aiMove;
+            // 直接在这里处理AI的移动，避免调用handleMove造成循环
+            if (isValidMove(currentBoard, row, col)) {
+              const newBoard = makeMove(currentBoard, row, col, "white");
+              setBoard(newBoard);
+              
+              if (isGameOver(newBoard, row, col, "white")) {
+                const winRes = getWinner(newBoard, row, col, "white");
+                setWinner(winRes);
+                setGameStarted(false);
 
-              let newStats = { ...stats, played: stats.played + 1 };
-              if (winRes === "tie") {
-                toast.info(t("tie"));
-                newStats.draws++;
-              } else if (winRes === "black") {
-                toast.success(t("you_win"));
-                newStats.wins++;
-              } else if (winRes === "white") {
-                toast.success(t("ai_win"));
-                newStats.losses++;
+                const currentStats = getStats("gomoku");
+                let newStats = { ...currentStats, played: currentStats.played + 1 };
+                if (winRes === "tie") {
+                  toast.info(t("tie"));
+                  newStats.draws++;
+                } else if (winRes === "black") {
+                  toast.success(t("you_win"));
+                  newStats.wins++;
+                } else if (winRes === "white") {
+                  toast.success(t("ai_win"));
+                  newStats.losses++;
+                }
+                saveStats("gomoku", newStats);
+                setStats(newStats);
+              } else {
+                setCurrentPlayer("black");
               }
-              saveStats("gomoku", newStats);
-              setStats(newStats);
-            } else {
-              setCurrentPlayer("black");
             }
           }
+        } catch (error) {
+          console.error("Error in AI move:", error);
+        } finally {
+          setIsAIThinking(false);
         }
-        setIsAIThinking(false);
       }, 800);
 
-      return () => clearTimeout(timer);
+      return () => {
+        console.log("AI useEffect cleanup");
+        clearTimeout(timer);
+        setIsAIThinking(false);
+      };
     }
-  }, [gameStarted, isAIMode, currentPlayer, winner, isAIThinking, t, stats]);
+  }, [gameStarted, isAIMode, currentPlayer, winner, t]);
 
   const resetGame = useCallback(() => {
     const newBoard = initializeBoard();
