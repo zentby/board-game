@@ -29,7 +29,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                 key={`${rowIndex}-${colIndex}`}
                 className={cn(
                   "w-12 h-12 md:w-14 md:h-14 bg-green-600 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-green-500 border border-green-700",
-                  isValid && "ring-2 ring-yellow-400 ring-opacity-60 animate-pulse",
+                  isValid && "ring-2 ring-yellow-400 ring-opacity-60",
                   !gameStarted && "cursor-not-allowed"
                 )}
                 onClick={() => onCellClick(rowIndex, colIndex)}
@@ -46,7 +46,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   />
                 )}
                 {isValid && (
-                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-yellow-400 bg-opacity-40 animate-ping" />
+                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-yellow-400 bg-opacity-40" />
                 )}
               </div>
             );
