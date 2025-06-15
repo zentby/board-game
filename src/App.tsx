@@ -1,3 +1,5 @@
+
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,7 +10,7 @@ import NotFound from "./pages/NotFound";
 import Landing from "@/pages/Landing";
 import Gomoku from "@/pages/Gomoku";
 import Othello from "@/pages/Index";
-import { LanguageProvider } from "@/contexts/LanguageContext"; // 新增 LanguageProvider
+import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext"; // Fixed import
 
 const queryClient = new QueryClient();
 
@@ -53,3 +55,4 @@ const App = () => {
 };
 
 export default App;
+
