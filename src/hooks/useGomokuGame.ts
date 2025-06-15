@@ -23,28 +23,52 @@ export const useGomokuGame = (t: (key: string) => string) => {
 
   // AI自动下棋 - AI执白棋
   useEffect(() => {
-    if (gameStarted && isAIMode && currentPlayer === "white" && !winner) {
+    if (gameStarted && isAIMode && currentPlayer === "white" && !winner && !isAIThinking) {
       console.log("AI should make a move", { gameStarted, isAIMode, currentPlayer, winner, isAIThinking });
       
-      if (!isAIThinking) {
-        setIsAIThinking(true);
+      setIsAIThinking(true);
+      
+      const timer = setTimeout(() => {
+        console.log("AI making move...");
+        const aiMove = makeGomokuAIMove(board, "white");
+        console.log("AI move result:", aiMove);
         
-        const timer = setTimeout(() => {
-          console.log("AI making move...");
-          const aiMove = makeGomokuAIMove(board, "white");
-          console.log("AI move result:", aiMove);
-          
-          if (aiMove) {
-            const [row, col] = aiMove;
-            handleMove(row, col, false);
-          }
-          setIsAIThinking(false);
-        }, 800);
+        if (aiMove) {
+          const [row, col] = aiMove;
+          // 直接在这里处理AI的移动，避免调用handleMove造成循环
+          if (isValidMove(board, row, col)) {
+            const newBoard = makeMove(board, row, col, "white");
+            setBoard(newBoard);
+            
+            if (isGameOver(newBoard, row, col, "white")) {
+              const winRes = getWinner(newBoard, row, col, "white");
+              setWinner(winRes);
+              setGameStarted(false);
 
-        return () => clearTimeout(timer);
-      }
+              let newStats = { ...stats, played: stats.played + 1 };
+              if (winRes === "tie") {
+                toast.info(t("tie"));
+                newStats.draws++;
+              } else if (winRes === "black") {
+                toast.success(t("you_win"));
+                newStats.wins++;
+              } else if (winRes === "white") {
+                toast.success(t("ai_win"));
+                newStats.losses++;
+              }
+              saveStats("gomoku", newStats);
+              setStats(newStats);
+            } else {
+              setCurrentPlayer("black");
+            }
+          }
+        }
+        setIsAIThinking(false);
+      }, 800);
+
+      return () => clearTimeout(timer);
     }
-  }, [gameStarted, isAIMode, currentPlayer, winner, board, isAIThinking]);
+  }, [gameStarted, isAIMode, currentPlayer, winner, isAIThinking, t, stats]);
 
   const resetGame = useCallback(() => {
     const newBoard = initializeBoard();
