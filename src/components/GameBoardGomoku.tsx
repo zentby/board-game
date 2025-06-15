@@ -53,7 +53,7 @@ export const GameBoardGomoku: React.FC<GameBoardGomokuProps> = ({
                 "w-6 h-6 md:w-9 md:h-9 bg-yellow-600 rounded relative flex items-center justify-center border border-yellow-700 cursor-pointer transition-all duration-200 hover:bg-yellow-500",
                 !gameStarted && "cursor-not-allowed opacity-80",
                 !!cell && "cursor-default",
-                isAIMode && currentPlayer === "black" && "cursor-not-allowed",
+                isAIMode && currentPlayer === "white" && "cursor-not-allowed",
                 isAIThinking && "pointer-events-none"
               )}
               onClick={() => gameStarted && !cell && !winner && !isAIThinking && onCellClick(rowIndex, colIndex)}

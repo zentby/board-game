@@ -61,15 +61,15 @@ export const ScoreBoardGomoku: React.FC<ScoreBoardProps> = ({
                   : "bg-gradient-to-br from-white to-gray-200"
               )}
             />
-            {isAIMode && currentPlayer === "black" ? (
+            {isAIMode && currentPlayer === "white" ? (
               <Bot className="w-4 h-4 text-purple-400" />
-            ) : isAIMode && currentPlayer === "white" ? (
+            ) : isAIMode && currentPlayer === "black" ? (
               <User className="w-4 h-4 text-blue-400" />
             ) : null}
             <span className="text-sm text-yellow-100">
               {isAIThinking ? t("ai_thinking") : 
                 isAIMode ? 
-                  (currentPlayer === "black" ? t("ai_turn") : t("your_turn")) :
+                  (currentPlayer === "black" ? t("your_turn") : t("ai_turn")) :
                   `${currentPlayer === "black" ? t("player_black") : t("player_white")}${lang === "zh" ? "回合" : "'s turn"}`
               }
             </span>
@@ -81,7 +81,7 @@ export const ScoreBoardGomoku: React.FC<ScoreBoardProps> = ({
             {winner === "tie"
               ? t("tie")
               : isAIMode
-                ? (winner === "black" ? t("ai_wins") : t("you_win"))
+                ? (winner === "black" ? t("you_win") : t("ai_wins"))
                 : `${winner === "black" ? t("player_black") : t("player_white")}${lang === "zh" ? "获胜！" : " wins!"}`}
           </span>
         </div>
