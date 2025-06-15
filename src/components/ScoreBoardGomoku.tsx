@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BoardState, Player, GameStats } from "@/pages/Gomoku";
@@ -61,10 +60,10 @@ export const ScoreBoardGomoku: React.FC<ScoreBoardProps> = ({
                   : "bg-gradient-to-br from-white to-gray-200"
               )}
             />
-            {isAIMode && currentPlayer === "white" ? (
-              <Bot className="w-4 h-4 text-purple-400" />
-            ) : isAIMode && currentPlayer === "black" ? (
+            {isAIMode && currentPlayer === "black" ? (
               <User className="w-4 h-4 text-blue-400" />
+            ) : isAIMode && currentPlayer === "white" ? (
+              <Bot className="w-4 h-4 text-purple-400" />
             ) : null}
             <span className="text-sm text-yellow-100">
               {isAIThinking ? t("ai_thinking") : 

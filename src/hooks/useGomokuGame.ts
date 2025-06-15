@@ -8,7 +8,7 @@ import type { Player, BoardState, GameStats } from "@/pages/Gomoku";
 
 export const useGomokuGame = (t: (key: string) => string) => {
   const [board, setBoard] = useState<BoardState>(initializeBoard());
-  const [currentPlayer, setCurrentPlayer] = useState<Player>("white");
+  const [currentPlayer, setCurrentPlayer] = useState<Player>("black");
   const [gameStarted, setGameStarted] = useState(false);
   const [winner, setWinner] = useState<Player | "tie" | null>(null);
   const [stats, setStats] = useState<GameStats>(() => getStats("gomoku"));
@@ -21,9 +21,9 @@ export const useGomokuGame = (t: (key: string) => string) => {
     setStats(getStats("gomoku"));
   }, [winner]);
 
-  // AI自动下棋
+  // AI自动下棋 - AI执白棋
   useEffect(() => {
-    if (gameStarted && isAIMode && currentPlayer === "black" && !winner) {
+    if (gameStarted && isAIMode && currentPlayer === "white" && !winner) {
       console.log("AI should make a move", { gameStarted, isAIMode, currentPlayer, winner, isAIThinking });
       
       if (!isAIThinking) {
@@ -31,7 +31,7 @@ export const useGomokuGame = (t: (key: string) => string) => {
         
         const timer = setTimeout(() => {
           console.log("AI making move...");
-          const aiMove = makeGomokuAIMove(board, "black");
+          const aiMove = makeGomokuAIMove(board, "white");
           console.log("AI move result:", aiMove);
           
           if (aiMove) {
@@ -49,14 +49,14 @@ export const useGomokuGame = (t: (key: string) => string) => {
   const resetGame = useCallback(() => {
     const newBoard = initializeBoard();
     setBoard(newBoard);
-    setCurrentPlayer(isAIMode ? "black" : "white");
+    setCurrentPlayer("black"); // 总是黑棋先手
     setWinner(null);
     setGameStarted(true);
     setHistory([]);
     setCanUndo(false);
     setIsAIThinking(false);
     toast.success(t("new_game"));
-  }, [t, isAIMode]);
+  }, [t]);
 
   const handleMove = useCallback((row: number, col: number, recordHistory: boolean = true) => {
     console.log("handleMove called", { row, col, currentPlayer, recordHistory });
@@ -66,7 +66,7 @@ export const useGomokuGame = (t: (key: string) => string) => {
       return false;
     }
 
-    if (recordHistory && currentPlayer === "white") {
+    if (recordHistory && currentPlayer === "black") {
       setHistory((prev) => [...prev, { board: board.map(r => [...r]), player: currentPlayer }]);
       setCanUndo(true);
     }
@@ -85,11 +85,11 @@ export const useGomokuGame = (t: (key: string) => string) => {
         toast.info(t("tie"));
         newStats.draws++;
       } else if (winRes === "black") {
-        toast.success(isAIMode ? t("ai_win") : t("black_win"));
-        newStats.losses++;
-      } else if (winRes === "white") {
-        toast.success(isAIMode ? t("you_win") : t("white_win"));
+        toast.success(isAIMode ? t("you_win") : t("black_win"));
         newStats.wins++;
+      } else if (winRes === "white") {
+        toast.success(isAIMode ? t("ai_win") : t("white_win"));
+        newStats.losses++;
       }
       saveStats("gomoku", newStats);
       setStats(newStats);
@@ -103,7 +103,7 @@ export const useGomokuGame = (t: (key: string) => string) => {
 
   const handleCellClick = useCallback(
     (row: number, col: number) => {
-      if (isAIMode && currentPlayer === "black") {
+      if (isAIMode && currentPlayer === "white") {
         return;
       }
       
@@ -135,7 +135,7 @@ export const useGomokuGame = (t: (key: string) => string) => {
   const toggleAIMode = useCallback(() => {
     setIsAIMode(!isAIMode);
     setBoard(initializeBoard());
-    setCurrentPlayer(!isAIMode ? "black" : "white");
+    setCurrentPlayer("black"); // 总是黑棋先手
     setWinner(null);
     setGameStarted(false);
     setHistory([]);
