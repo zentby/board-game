@@ -10,7 +10,7 @@ import NotFound from "./pages/NotFound";
 import Landing from "@/pages/Landing";
 import Gomoku from "@/pages/Gomoku";
 import Othello from "@/pages/Index";
-import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext"; // Fixed import
+import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 
 const queryClient = new QueryClient();
 
@@ -19,11 +19,11 @@ const TITLE_MAP = {
   zh: "棋乐家园：家庭五子棋与黑白棋"
 };
 
-const App = () => {
+// New inner component that uses the language context
+const AppWithLanguage = () => {
   const { lang } = useLanguage();
 
   useEffect(() => {
-    // Try reading browser's default language at first load if no context lang set
     let _lang = lang;
     if (!_lang) {
       const browserLang = navigator.language?.toLowerCase();
@@ -34,25 +34,29 @@ const App = () => {
   }, [lang]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/othello" element={<Othello />} />
-              <Route path="/gomoku" element={<Gomoku />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </LanguageProvider>
-    </QueryClientProvider>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/othello" element={<Othello />} />
+          <Route path="/gomoku" element={<Gomoku />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
   );
 };
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <LanguageProvider>
+      <AppWithLanguage />
+    </LanguageProvider>
+  </QueryClientProvider>
+);
 
 export default App;
 
