@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Landing from "@/pages/Landing";
 import Gomoku from "@/pages/Gomoku";
+import Xiangqi from "@/pages/Xiangqi";
 import Othello from "@/pages/Index";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 
@@ -42,6 +43,7 @@ const AppWithLanguage = () => {
           <Route path="/" element={<Landing />} />
           <Route path="/othello" element={<Othello />} />
           <Route path="/gomoku" element={<Gomoku />} />
+          <Route path="/xiangqi" element={<Xiangqi />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -59,4 +61,3 @@ const App = () => (
 );
 
 export default App;
-

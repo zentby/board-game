@@ -13,7 +13,7 @@ const defaultStats: GameStats = {
   played: 0,
 };
 
-export function getStats(key: "othello" | "gomoku"): GameStats {
+export function getStats(key: "othello" | "gomoku" | "xiangqi"): GameStats {
   try {
     const str = localStorage.getItem(`STATS_${key}`);
     if (str) return JSON.parse(str);
@@ -21,6 +21,6 @@ export function getStats(key: "othello" | "gomoku"): GameStats {
   return { ...defaultStats };
 }
 
-export function saveStats(key: "othello" | "gomoku", stats: GameStats) {
+export function saveStats(key: "othello" | "gomoku" | "xiangqi", stats: GameStats) {
   localStorage.setItem(`STATS_${key}`, JSON.stringify(stats));
 }
