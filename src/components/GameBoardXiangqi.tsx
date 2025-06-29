@@ -17,15 +17,15 @@ interface GameBoardXiangqiProps {
   t: (key: string) => string;
 }
 
-const PIECE_SYMBOLS = {
+const getPieceSymbols = (t: (key: string) => string) => ({
   red: {
-    general: "帥",
-    advisor: "仕", 
-    elephant: "相",
-    horse: "傌",
-    chariot: "俥",
-    cannon: "炮",
-    soldier: "兵"
+    general: t("piece_general"),
+    advisor: t("piece_advisor"), 
+    elephant: t("piece_elephant"),
+    horse: t("piece_horse"),
+    chariot: t("piece_chariot"),
+    cannon: t("piece_cannon"),
+    soldier: t("piece_soldier")
   },
   black: {
     general: "將",
@@ -36,7 +36,7 @@ const PIECE_SYMBOLS = {
     cannon: "砲",
     soldier: "卒"
   }
-};
+});
 
 export const GameBoardXiangqi: React.FC<GameBoardXiangqiProps> = ({
   board,
@@ -50,6 +50,8 @@ export const GameBoardXiangqi: React.FC<GameBoardXiangqiProps> = ({
   validMoves,
   t
 }) => {
+  const PIECE_SYMBOLS = getPieceSymbols(t);
+
   const isValidMovePosition = (row: number, col: number) => {
     return validMoves.some(move => move.row === row && move.col === col);
   };

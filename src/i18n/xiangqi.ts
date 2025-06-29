@@ -38,15 +38,13 @@ export const XIANGQI_LANGS = {
     piece_selected: "已选择棋子",
     in_check: "将军！",
     checkmate: "将死！",
-    pieces: {
-      general: "将",
-      advisor: "士",
-      elephant: "象",
-      horse: "马", 
-      chariot: "车",
-      cannon: "炮",
-      soldier: "兵"
-    }
+    piece_general: "将",
+    piece_advisor: "士",
+    piece_elephant: "象",
+    piece_horse: "马", 
+    piece_chariot: "车",
+    piece_cannon: "炮",
+    piece_soldier: "兵"
   },
   en: {
     return: "Return",
@@ -86,14 +84,12 @@ export const XIANGQI_LANGS = {
     piece_selected: "Piece selected",
     in_check: "Check!",
     checkmate: "Checkmate!",
-    pieces: {
-      general: "General",
-      advisor: "Advisor", 
-      elephant: "Elephant",
-      horse: "Horse",
-      chariot: "Chariot",
-      cannon: "Cannon",
-      soldier: "Soldier"
-    }
+    piece_general: "General",
+    piece_advisor: "Advisor", 
+    piece_elephant: "Elephant",
+    piece_horse: "Horse",
+    piece_chariot: "Chariot",
+    piece_cannon: "Cannon",
+    piece_soldier: "Soldier"
   }
 };
