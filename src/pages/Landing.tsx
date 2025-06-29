@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import OthelloSVG from "@/components/svg/OthelloSVG";
 import GomokuSVG from "@/components/svg/GomokuSVG";
-import { Languages } from "lucide-react";
+import { Languages, Crown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const LANGS = {
@@ -16,15 +16,19 @@ const LANGS = {
     othelloDesc: "经典策略游戏，围捕对手棋子获得胜利",
     gomokuTitle: "五子棋（Gomoku）",
     gomokuDesc: "率先连成五子即可取胜的棋类对战",
+    xiangqiTitle: "象棋（Chinese Chess）",
+    xiangqiDesc: "中华传统象棋，策略与智慧的较量",
     enter: "进入",
   },
   en: {
     mainTitle: "Casual Board Games",
     subtitle: "Select a game to play",
     othelloTitle: "Othello",
-    othelloDesc: "Classic strategy game: outflank your opponent’s pieces to win",
+    othelloDesc: "Classic strategy game: outflank your opponent's pieces to win",
     gomokuTitle: "Gomoku",
     gomokuDesc: "Be the first to connect five stones to win the match",
+    xiangqiTitle: "Chinese Chess",
+    xiangqiDesc: "Traditional Chinese Chess - A battle of strategy and wisdom",
     enter: "Enter",
   },
 };
@@ -50,6 +54,12 @@ const Landing = () => {
       url: "/gomoku",
       icon: <GomokuSVG className="mx-auto mb-1"/>,
     },
+    {
+      title: texts.xiangqiTitle,
+      description: texts.xiangqiDesc,
+      url: "/xiangqi",
+      icon: <Crown className="mx-auto mb-1 w-16 h-16 text-amber-600"/>,
+    },
   ];
 
   return (
@@ -70,14 +80,14 @@ const Landing = () => {
         </Button>
       </div>
 
-      <div className="w-full max-w-3xl mx-auto px-4 py-12">
+      <div className="w-full max-w-4xl mx-auto px-4 py-12">
         <div className="mb-8 text-center animate-fade-in">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent mb-3">
             {texts.mainTitle}
           </h1>
           <p className="text-slate-300 text-lg">{texts.subtitle}</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {games.map(game => (
             <Card key={game.title} className="animate-scale-in">
               <CardHeader>
